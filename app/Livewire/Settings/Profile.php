@@ -55,6 +55,8 @@ final class Profile extends Component
         $user->save();
 
         Flux::toast(variant: 'success', text: __('Profile updated.'));
+
+        $this->redirectRoute('dashboard', navigate: true);
     }
 
     /**
