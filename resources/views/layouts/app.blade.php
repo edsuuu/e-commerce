@@ -19,12 +19,13 @@
 
         @livewireStyles
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        @php($isStorefront = request()->routeIs('home', 'cart.*', 'checkout.*'))
+    <body class="min-h-screen bg-white dark:bg-zinc-800 {{ request()->routeIs('login', 'register') ? 'overflow-hidden' : '' }}">
+        @php($isStorefront = request()->routeIs('home', 'products.*', 'cart.*', 'checkout.*', 'login', 'register'))
 
         @if($layout === 'sidebar')
             <x-sidebar />
         @elseif($isStorefront)
+            @php($storeCategories = \App\Models\Category::query()->active()->whereIn('name', ['Hardware', 'Periféricos', 'PC Gamer', 'Monitores', 'Placas de Vídeo'])->orderBy('sort_order')->get())
             <header class="sticky top-0 z-40 bg-[#002144] text-white shadow-md">
                 <div class="mx-auto flex max-w-7xl items-center gap-6 px-3 py-4 md:px-4">
                     <a href="{{ route('home') }}" class="shrink-0" wire:navigate>
@@ -50,7 +51,7 @@
                             <div class="flex flex-col leading-tight">
                                 @auth
                                     <span class="text-white/60">Olá, {{ auth()->user()->name }}</span>
-                                    <a href="{{ route('dashboard') }}" class="text-sm font-black hover:text-[#ff6500]" wire:navigate>Minha Conta</a>
+                                    <a href="{{ route('profile.edit') }}" class="text-sm font-black hover:text-[#ff6500]" wire:navigate>Minha Conta</a>
                                 @else
                                     <span class="text-white/60">Entre ou</span>
                                     <a href="{{ route('login') }}" class="text-sm font-black hover:text-[#ff6500]" wire:navigate>Cadastre-se</a>
@@ -62,7 +63,7 @@
                             <a href="#" class="text-white opacity-80 hover:opacity-100">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                             </a>
-                            <livewire:cart-counter />
+                            <livewire:cart.cart-counter />
                         </div>
                     </div>
                 </div>
@@ -73,11 +74,16 @@
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                             DEPARTAMENTOS
                         </div>
-                        <a href="{{ route('home') }}" class="text-[#ff6500] hover:underline" wire:navigate>Ofertas do dia</a>
-                        <a href="{{ route('home') }}" class="hover:text-[#ff6500]" wire:navigate>Hardware</a>
-                        <a href="{{ route('home') }}" class="hover:text-[#ff6500]" wire:navigate>Periféricos</a>
-                        <a href="{{ route('home') }}" class="hover:text-[#ff6500]" wire:navigate>PC Gamer</a>
-                        <a href="{{ route('home') }}" class="hover:text-[#ff6500]" wire:navigate>Monitores</a>
+                        <a href="{{ route('home') }}" class="{{ blank(request('category')) ? 'text-[#ff6500]' : '' }} hover:text-[#ff6500] hover:underline" wire:navigate>Ofertas do dia</a>
+                        @foreach($storeCategories as $storeCategory)
+                            <a
+                                href="{{ route('home', ['category' => $storeCategory->id]) }}"
+                                class="{{ (int) request('category') === $storeCategory->id ? 'text-[#ff6500]' : '' }} hover:text-[#ff6500]"
+                                wire:navigate
+                            >
+                                {{ $storeCategory->name }}
+                            </a>
+                        @endforeach
                         <span class="ml-auto hidden items-center gap-1 text-white/60 md:flex">
                              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                              Enviar para: <span class="font-bold text-white">Digite o CEP</span>
@@ -92,16 +98,13 @@
                 <x-app-logo href="{{ route('home') }}" wire:navigate />
 
                 @auth
-                    <flux:navbar class="-mb-px max-lg:hidden">
-                        <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                            {{ __('Dashboard') }}
-                        </flux:navbar.item>
-                        @if(auth()->user()->hasRole('Administrador'))
+                    @if(auth()->user()->hasRole('Administrador'))
+                        <flux:navbar class="-mb-px max-lg:hidden">
                             <flux:navbar.item icon="folder-git-2" href="/admin">
                                 Admin
                             </flux:navbar.item>
-                        @endif
-                    </flux:navbar>
+                        </flux:navbar>
+                    @endif
                 @endauth
 
                 <flux:spacer />

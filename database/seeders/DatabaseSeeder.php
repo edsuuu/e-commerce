@@ -18,6 +18,7 @@ final class DatabaseSeeder extends Seeder
             Seeder001Roles::class,
             Seeder002AdminUser::class,
             Seeder003Catalog::class,
+            Seeder004Statuses::class,
         ]);
     }
 }

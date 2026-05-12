@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Services\UploadService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -78,6 +77,14 @@ final class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    /**
+     * @return HasMany<ProductReview, $this>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
     protected static function booted(): void
     {
         self::deleting(function (): void {
@@ -92,9 +99,9 @@ final class Product extends Model
 
     protected function getPrimaryImageUrlAttribute(): string
     {
-        $path = $this->images->first()?->file?->path;
+        $url = $this->images->first()?->file?->url;
 
-        return resolve(UploadService::class)->url($path) ?? 'https://placehold.co/640x480/f3f4f6/111827?text=Produto';
+        return filled($url) ? $url : 'https://placehold.co/640x480/f3f4f6/111827?text=Produto';
     }
 
     /**

@@ -13,10 +13,25 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('files', function (Blueprint $table): void {
+            $table->id();
+            $table->uuid('uuid')->nullable()->unique();
+            $table->string('disk');
+            $table->string('path')->unique();
+            $table->string('name')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->unsignedBigInteger('size')->nullable();
+            $table->string('alt_text')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+
         Schema::create('users', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('file_id')->nullable()->constrained('files')->nullOnDelete();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('google_id')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -44,8 +59,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('files');
     }
 };

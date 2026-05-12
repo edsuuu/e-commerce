@@ -13,8 +13,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->foreignId('file_id')->nullable()->after('id')->constrained('files')->nullOnDelete();
+        Schema::create('statuses', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('type');
+            $table->timestamps();
+
+            $table->unique(['type', 'name']);
+            $table->index('type');
         });
     }
 
@@ -23,8 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->dropConstrainedForeignId('file_id');
-        });
+        Schema::dropIfExists('statuses');
     }
 };

@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Checkout\CheckoutService;
+use App\Services\Checkout\Contracts\CheckoutServiceInterface;
+use App\Services\Checkout\Contracts\StatusRepositoryInterface;
+use App\Services\Checkout\Repositories\EloquentStatusRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\Date;
@@ -22,7 +26,8 @@ final class AppServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        //
+        $this->app->bind(StatusRepositoryInterface::class, EloquentStatusRepository::class);
+        $this->app->bind(CheckoutServiceInterface::class, CheckoutService::class);
     }
 
     /**

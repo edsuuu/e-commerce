@@ -13,6 +13,10 @@ final class CreateProduct extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        $url = $this->getResource()::getUrl('index');
+
+        assert(is_string($url));
+
+        return $url;
     }
 }

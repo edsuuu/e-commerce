@@ -11,19 +11,17 @@ final class ImageS3
 {
     public static function handle(string $path, string $id): Response
     {
-        $url = "$path/$id";
+        $url = sprintf('%s/%s', $path, $id);
         $pathExists = Storage::disk('s3')->exists($url);
 
-        if (!$pathExists) {
-            abort(404);
-        }
+        abort_unless($pathExists, 404);
 
         $content = Storage::disk('s3')->get($url);
-        $mime = Storage::disk('s3')->mimeType($url);
+        $mime = Storage::disk('s3')->mimeType($url) ?: 'application/octet-stream';
 
         return response($content)
             ->header('Content-Type', $mime)
             ->header('Access-Control-Allow-Origin', '*')
-            ->header('Content-Disposition', 'inline; filename="' . basename($id) . '"');
+            ->header('Content-Disposition', 'inline; filename="'.basename($id).'"');
     }
 }

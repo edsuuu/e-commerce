@@ -9,10 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property array<string, mixed>|null $metadata
+ * @property string $status
+ */
 #[Fillable([
     'user_id',
     'number',
     'status',
+    'status_id',
     'customer_name',
     'customer_email',
     'customer_phone',
@@ -31,15 +36,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 final class Order extends Model
 {
-    public const string STATUS_PENDING = 'pending';
+    public const string STATUS_PENDING = 'Pendente';
 
-    public const string STATUS_PAID = 'paid';
+    public const string STATUS_PAID = 'Pago';
 
-    public const string STATUS_SHIPPED = 'shipped';
+    public const string STATUS_SHIPPED = 'Enviado';
 
-    public const string STATUS_COMPLETED = 'completed';
+    public const string STATUS_COMPLETED = 'Concluido';
 
-    public const string STATUS_CANCELED = 'canceled';
+    public const string STATUS_CANCELED = 'Cancelado';
+
+    public const string STATUS_DELIVERY_FAILED = 'Nao entregue';
+
+    public const string STATUS_RETURN_REQUESTED = 'Devolucao solicitada';
+
+    public const string STATUS_RETURNED = 'Devolvido';
+
+    public const string STATUS_REFUND_REQUESTED = 'Reembolso solicitado';
+
+    public const string STATUS_REFUNDED = 'Reembolsado';
 
     /**
      * @return BelongsTo<User, $this>
@@ -47,6 +62,14 @@ final class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<Status, $this>
+     */
+    public function statusRecord(): BelongsTo
+    {
+        return $this->belongsTo(Status::class, 'status_id');
     }
 
     /**

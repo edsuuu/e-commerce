@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('number')->unique();
-            $table->string('status')->default('pending');
+            $table->foreignId('status_id')->constrained('statuses');
+            $table->string('status')->default('Pendente');
             $table->string('customer_name');
             $table->string('customer_email');
             $table->string('customer_phone')->nullable();
@@ -36,6 +37,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['status', 'created_at']);
+            $table->index(['status_id', 'created_at']);
             $table->index(['customer_email', 'created_at']);
         });
     }

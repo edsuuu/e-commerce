@@ -56,7 +56,7 @@ final class Profile extends Component
 
         Flux::toast(variant: 'success', text: __('Profile updated.'));
 
-        $this->redirectRoute('dashboard', navigate: true);
+        $this->redirectRoute('profile.edit', navigate: true);
     }
 
     /**
@@ -68,7 +68,7 @@ final class Profile extends Component
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
+            $this->redirectIntended(default: route('home', absolute: false));
 
             return;
         }

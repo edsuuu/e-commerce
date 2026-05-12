@@ -33,7 +33,7 @@ final class File extends Model
 
     protected function getUrlAttribute(): string
     {
-        return resolve(UploadService::class)->url($this->path) ?? '';
+        return resolve(UploadService::class)->url($this->path, $this->disk) ?? '';
     }
 
     /**

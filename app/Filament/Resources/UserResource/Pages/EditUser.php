@@ -15,7 +15,11 @@ final class EditUser extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        $url = $this->getResource()::getUrl('index');
+
+        assert(is_string($url));
+
+        return $url;
     }
 
     protected function getHeaderActions(): array

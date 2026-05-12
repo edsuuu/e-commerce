@@ -5,8 +5,8 @@
 
     @auth
         <flux:navlist variant="grid">
-            <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                {{ __('Dashboard') }}
+            <flux:navlist.item icon="shopping-bag" :href="route('home')" :current="request()->routeIs('home')" wire:navigate>
+                Loja
             </flux:navlist.item>
         </flux:navlist>
     @endauth

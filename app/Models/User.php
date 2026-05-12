@@ -23,11 +23,10 @@ use Override;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['file_id', 'avatar_path', 'name', 'email', 'password'])]
+#[Fillable(['file_id', 'avatar_path', 'name', 'email', 'google_id', 'email_verified_at', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 final class User extends Authenticatable implements Auditable, FilamentUser, HasAvatar, MustVerifyEmail
 {
-    protected $appends = ['avatar_path'];
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
@@ -35,6 +34,8 @@ final class User extends Authenticatable implements Auditable, FilamentUser, Has
     use Notifiable;
     use \OwenIt\Auditing\Auditable;
     use TwoFactorAuthenticatable;
+
+    protected $appends = ['avatar_path'];
 
     /**
      * Get the user's initials

@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Category;
 use App\Models\File;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -21,20 +22,26 @@ final class UploadService
         return is_string($disk) ? $disk : 'public';
     }
 
-    public function url(?string $path): ?string
+    public function url(?string $path, ?string $disk = null): ?string
     {
         if (blank($path)) {
             return null;
         }
 
-        if ($this->disk() === 's3') {
+        if (Str::startsWith($path, ['http://', 'https://', '/'])) {
+            return $path;
+        }
+
+        $disk ??= $this->disk();
+
+        if ($disk === 's3') {
             return route('image-s3', [
                 'path' => dirname($path),
                 'id' => basename($path),
             ]);
         }
 
-        return Storage::disk($this->disk())->url($path);
+        return Storage::disk($disk)->url($path);
     }
 
     /**
@@ -90,7 +97,7 @@ final class UploadService
 
     public function fileFromPath(string $path, ?string $altText = null): File
     {
-        \Illuminate\Support\Facades\Log::info('Tentando salvar arquivo no banco:', ['path' => $path]);
+        Log::info('Tentando salvar arquivo no banco:', ['path' => $path]);
 
         $file = File::query()->firstOrNew(['path' => $path]);
 
@@ -107,7 +114,7 @@ final class UploadService
 
         $file->save();
 
-        \Illuminate\Support\Facades\Log::info('Arquivo salvo com sucesso:', ['id' => $file->id, 'path' => $file->path]);
+        Log::info('Arquivo salvo com sucesso:', ['id' => $file->id, 'path' => $file->path]);
 
         return $file;
     }

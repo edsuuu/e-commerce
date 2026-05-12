@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Models\Order;
+use App\Models\Status;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -37,7 +38,7 @@ final class OrderResource extends Resource
     {
         return $schema->components([
             Section::make('Status')->schema([
-                Select::make('status')->label('Status')->options(self::statusOptions())->required(),
+                Select::make('status_id')->label('Status')->options(self::statusOptions())->required(),
             ]),
             Section::make('Cliente')->schema([
                 TextInput::make('customer_name')->label('Nome')->required(),
@@ -62,12 +63,12 @@ final class OrderResource extends Resource
             ->columns([
                 TextColumn::make('number')->label('Pedido')->searchable()->sortable(),
                 TextColumn::make('customer_name')->label('Cliente')->searchable(),
-                TextColumn::make('status')->label('Status')->badge()->formatStateUsing(fn (string $state): string => self::statusOptions()[$state] ?? $state),
+                TextColumn::make('statusRecord.name')->label('Status')->badge(),
                 TextColumn::make('total_cents')->label('Total')->money('BRL', divideBy: 100)->sortable(),
                 TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')->label('Status')->options(self::statusOptions()),
+                SelectFilter::make('status_id')->label('Status')->options(self::statusOptions()),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -75,17 +76,22 @@ final class OrderResource extends Resource
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int, string>
      */
     public static function statusOptions(): array
     {
-        return [
-            Order::STATUS_PENDING => 'Pendente',
-            Order::STATUS_PAID => 'Pago',
-            Order::STATUS_SHIPPED => 'Enviado',
-            Order::STATUS_COMPLETED => 'Concluído',
-            Order::STATUS_CANCELED => 'Cancelado',
-        ];
+        return Status::query()
+            ->forType(Status::TYPE_ORDER)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->mapWithKeys(function (mixed $name, int|string $id): array {
+                if (! is_scalar($name)) {
+                    return [];
+                }
+
+                return [(int) $id => (string) $name];
+            })
+            ->all();
     }
 
     public static function getPages(): array
